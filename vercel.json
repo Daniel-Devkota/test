@@ -1,0 +1,36 @@
+{
+  "regions": ["syd1"],
+  "crons": [
+    {
+      "path": "/api/cron/daily-maintenance-check",
+      "schedule": "0 0 * * *"
+    },
+    {
+      "path": "/api/cron/weekly-financial-report",
+      "schedule": "0 0 * * 1"
+    },
+    {
+      "path": "/api/cron/monthly-levy-reminders",
+      "schedule": "0 0 1 * *"
+    }
+  ],
+  "buildCommand": "npm run build",
+  "outputDirectory": ".next",
+  "framework": "nextjs",
+  "functions": {
+    "app/api/auth/**/*": {
+      "memory": 1024,
+      "maxDuration": 10
+    },
+    "app/api/notifications/**/*": {
+      "runtime": "edge"
+    },
+    "app/api/documents/**/*": {
+      "runtime": "edge"
+    },
+    "app/api/form-validation/**/*": {
+      "runtime": "edge"
+    }
+  }
+}
+
