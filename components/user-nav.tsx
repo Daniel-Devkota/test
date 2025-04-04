@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import {
@@ -14,6 +14,9 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { useRouter } from "next/navigation"
 
+import { auth } from "@/firebase/clientapp"; // Import Firebase Auth
+import { onAuthStateChanged, signOut } from "firebase/auth";
+
 export function UserNav() {
   const router = useRouter()
   // Default to not signed in
@@ -23,24 +26,45 @@ export function UserNav() {
     email: "guest@example.com",
   })
 
-  const handleAuthAction = () => {
+  // Listen for authentication state changes
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        // User is signed in
+        setIsSignedIn(true);
+        setUserData({
+          name: user.displayName || "User", // Use displayName if available
+          email: user.email || "No email",
+        });
+      } else {
+        // User is signed out
+        setIsSignedIn(false);
+        setUserData({
+          name: "Guest User",
+          email: "guest@example.com",
+        });
+      }
+    });
+
+    return () => unsubscribe(); // Cleanup listener on component unmount
+  }, []);
+
+
+
+  const handleAuthAction = async () => {
     if (isSignedIn) {
       // Sign out logic
-      setIsSignedIn(false)
+      await signOut(auth);
+      setIsSignedIn(false);
       setUserData({
         name: "Guest User",
         email: "guest@example.com",
-      })
+      });
     } else {
-      // Sign in logic - for demo purposes, we'll just toggle the state
-      setIsSignedIn(true)
-      setUserData({
-        name: "Alex Johnson",
-        email: "alex.johnson@example.com",
-      })
-      router.push("/owners-portal/dashboard")
+      // Redirect to login page
+      router.push("/owners-portal");
     }
-  }
+  };
 
   return (
     <DropdownMenu>

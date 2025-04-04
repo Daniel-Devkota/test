@@ -13,6 +13,12 @@ import { Textarea } from "@/components/ui/textarea"
 import { useNotification } from "@/components/notification"
 import { Building, Mail, MapPin, Phone } from "lucide-react"
 
+// Define the User interface based on your schema (just the 'test' field)
+interface User {
+  test: string; // Assuming 'test' is a string field in your Firestore documents
+}
+
+
 const formSchema = z.object({
   name: z.string().min(2, {
     message: "Name must be at least 2 characters.",

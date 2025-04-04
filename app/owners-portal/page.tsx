@@ -11,42 +11,81 @@ import { Label } from "@/components/ui/label"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useNotification } from "@/components/notification"
 
+import { auth, db } from "@/firebase/clientapp"; // Import Firebase instance
+import { createUserWithEmailAndPassword } from "firebase/auth";
+import { doc, setDoc } from "firebase/firestore";
+import { signInWithEmailAndPassword } from "firebase/auth";
+
+
 export default function OwnersPortal() {
   const router = useRouter()
   const { showNotification, NotificationContainer } = useNotification()
   const [isLoading, setIsLoading] = useState(false)
 
   const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setIsLoading(true)
-
-    // Simulate login process
-    setTimeout(() => {
-      setIsLoading(false)
+    e.preventDefault();
+    setIsLoading(true);
+  
+    // Get form values
+    const email = (document.getElementById("email") as HTMLInputElement).value;
+    const password = (document.getElementById("password") as HTMLInputElement).value;
+  
+    try {
+      // Sign in the user with Firebase Authentication
+      await signInWithEmailAndPassword(auth, email, password);
+  
+      setIsLoading(false);
       showNotification({
         title: "Login successful",
         description: "Welcome back to Strata One",
-      })
-
-      // In a real app, you would set the auth state in a context or store
-      // For now, we'll just redirect to the dashboard
-      router.push("/owners-portal/dashboard")
-    }, 1500)
-  }
+      });
+  
+      // Redirect to the dashboard
+      router.push("/owners-portal/dashboard");
+    } catch (error: any) {
+      setIsLoading(false);
+      showNotification({
+        title: "Login failed",
+        description: "Invalid email or password. Please try again.",
+      });
+    }
+  };
+  
 
   const handleRegister = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setIsLoading(true)
-
-    // Simulate registration process
-    setTimeout(() => {
-      setIsLoading(false)
+    e.preventDefault();
+    setIsLoading(true);
+  
+    // Get form values
+    const fullName = (document.getElementById("full-name") as HTMLInputElement).value;
+    const unitNumber = parseInt((document.getElementById("unit-number") as HTMLInputElement).value, 10);
+    const email = (document.getElementById("register-email") as HTMLInputElement).value;
+    const password = (document.getElementById("register-password") as HTMLInputElement).value;
+  
+    try {
+      // Create user in Firebase Authentication
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+  
+      // Store additional user information in Firestore
+      await setDoc(doc(db, "users", email), {
+        fullName,
+        unitNumber,
+        email,
+      });
+  
+      setIsLoading(false);
       showNotification({
-        title: "Registration submitted",
-        description: "Your registration is pending approval by the committee",
-      })
-    }, 1500)
-  }
+        title: "Registration successful",
+        description: "Your account has been created successfully.",
+      });
+    } catch (error: any) {
+      setIsLoading(false);
+      showNotification({
+        title: "Registration failed",
+        description: error.message,
+      });
+    }
+  };
 
   return (
     <div className="container flex items-center justify-center min-h-[calc(100vh-16rem)] py-12">
@@ -70,13 +109,6 @@ export default function OwnersPortal() {
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
                     <Label htmlFor="password">Password</Label>
-                    <Button
-                      variant="link"
-                      className="p-0 h-auto text-sm"
-                      onClick={() => router.push("/owners-portal/forgot-password")}
-                    >
-                      Forgot password?
-                    </Button>
                   </div>
                   <Input id="password" type="password" required />
                 </div>
