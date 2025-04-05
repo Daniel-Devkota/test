@@ -1,15 +1,75 @@
+"use client"
+
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Progress } from "@/components/ui/progress"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { AlertCircle, Bell, Calendar, Home, PenToolIcon as Tool } from "lucide-react"
 import Link from "next/link"
-import { userData } from "@/data/user-data"
+// import { userData } from "@/data/user-data"
 import { financeSummary } from "@/data/finance-data"
 import { notificationData } from "@/data/notification-data"
 import { requestData } from "@/data/request-data"
 
+import { db, auth } from '@/firebase/clientapp'; // Importing from your clientapp.ts file
+import { onAuthStateChanged } from 'firebase/auth';
+import { useEffect, useState } from "react"
+import { doc, getDoc } from "firebase/firestore"
+
+interface UserData {
+  email: string;
+  fullName: string;
+  unitNumber: string; // You can add other fields depending on your Firestore structure
+}
+
 export default function Dashboard() {
+
+  const [userData, setUserData] = useState<UserData | null>(null);
+  const [loading, setLoading] = useState<boolean>(true);
+
+  // Fetch user data from Firestore by document ID (email)
+  const fetchUserData = async (email: string) => {
+    const docRef = doc(db, 'users', email); // Using email as the document ID
+    try {
+      const docSnapshot = await getDoc(docRef); // Get the document snapshot by ID
+      if (docSnapshot.exists()) {
+        const userData: UserData = docSnapshot.data() as UserData;
+        console.log('User data fetched:', userData);
+        setUserData(userData); // Set the user data
+      } else {
+        console.log('No matching user found');
+      }
+    } catch (error) {
+      console.error('Error fetching user data:', error);
+    } finally {
+      setLoading(false); // Stop loading once the data is fetched or error occurs
+    }
+  };
+  
+  // Handle user state changes and fetch user data based on email
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        // Fetch user data when the user is logged in
+        fetchUserData(user.email!); // Ensure the email is not null
+      } else {
+        setLoading(false); // Stop loading if the user is not logged in
+        console.log('User is not logged in');
+      }
+    });
+
+    // Cleanup listener when component unmounts
+    return () => unsubscribe();
+  }, []);
+
+  if (loading) {
+    return <div>Loading user data...</div>;
+  }
+
+  if (!userData) {
+    return <div>No user data found or user is not logged in.</div>;
+  }
+
   // Get the most recent notifications and requests
   const recentNotifications = notificationData.slice(0, 3)
   const activeRequests = requestData
@@ -21,7 +81,7 @@ export default function Dashboard() {
       <div>
         <h1 className="text-3xl font-bold tracking-tight">Owner Dashboard</h1>
         <p className="text-muted-foreground">
-          Welcome back, {userData.name}. Unit {userData.unitNumber}.
+          Welcome back, {userData.fullName}. Unit {userData.unitNumber}.
         </p>
       </div>
 
