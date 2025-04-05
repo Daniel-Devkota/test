@@ -12,6 +12,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Textarea } from "@/components/ui/textarea"
 import { useNotification } from "@/components/notification"
 import { Building, Mail, MapPin, Phone } from "lucide-react"
+import { addDoc, collection } from "firebase/firestore"
+import { db } from "@/firebase/clientapp" // Import your Firestore instance
 
 // Define the User interface based on your schema (just the 'test' field)
 interface User {
@@ -56,8 +58,15 @@ export default function ContactPage() {
     setIsSubmitting(true)
 
     try {
-      // This would normally call a server action
-      await new Promise((resolve) => setTimeout(resolve, 1500))
+      // Add the form data to the Firestore collection
+      await addDoc(collection(db, "contact-us-info"), {
+        name: values.name,
+        email: values.email,
+        subject: values.subject,
+        category: values.category,
+        message: values.message,
+        createdAt: new Date(), // Optional: Add a timestamp
+      })
 
       showNotification({
         title: "Message sent",
