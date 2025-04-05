@@ -16,10 +16,13 @@ import { useRouter } from "next/navigation"
 
 import { auth } from "@/firebase/clientapp"; // Import Firebase Auth
 import { onAuthStateChanged, signOut } from "firebase/auth";
+import { useNotification } from "@/components/notification"; // Import notification hook
+
 
 export function UserNav() {
   const router = useRouter()
   // Default to not signed in
+  const { showNotification, NotificationContainer } = useNotification(); // Destructure notification functions
   const [isSignedIn, setIsSignedIn] = useState(false)
   const [userData, setUserData] = useState({
     name: "Guest User",
@@ -60,6 +63,7 @@ export function UserNav() {
         name: "Guest User",
         email: "guest@example.com",
       });
+      router.push("/")
     } else {
       // Redirect to login page
       router.push("/owners-portal");

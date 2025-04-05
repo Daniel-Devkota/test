@@ -13,6 +13,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Textarea } from "@/components/ui/textarea"
 import { useNotification } from "@/components/notification"
 
+import { db } from "@/firebase/clientapp" // Import Firebase instance
+import { addDoc, collection } from "firebase/firestore"
+
 const formSchema = z.object({
   title: z.string().min(5, {
     message: "Title must be at least 5 characters.",
@@ -60,16 +63,46 @@ export default function MaintenanceRequestPage() {
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsSubmitting(true)
 
+    const categoryToPersonnel: Record<string, string> = {
+      electrical: "Electrical Manager",
+      plumbing: "Plumbing Manager",
+      hvac: "HVAC Specialist",
+      structural: "Structural Engineer",
+      appliance: "Appliance Technician",
+      "common-area": "Building Manager",
+      other: "General Maintenance Team",
+    }
+
     try {
-      // This would normally call the server action
-      await new Promise((resolve) => setTimeout(resolve, 1500))
+
+      // Assign a person based on the category
+      const assignedTo = categoryToPersonnel[values.category] || "Unassigned"
+
+      // Add the form data to the Firestore collection
+      await addDoc(collection(db, "maintenance-requests"), {
+        title: values.title,
+        location: values.location,
+        category: values.category,
+        priority: values.priority,
+        description: values.description,
+        contactName: values.contactName,
+        contactEmail: values.contactEmail,
+        contactPhone: values.contactPhone || null, // Optional field
+        status: "submitted", // Default status for new requests
+        submittedDate: new Date().toISOString(), // Add a timestamp
+        assignedTo: assignedTo, // Assign based on category
+      })
 
       showNotification({
         title: "Maintenance request submitted",
         description: "Your request has been received and will be processed shortly.",
       })
+    
+      // Add a delay before redirecting
+      setTimeout(() => {
+        router.push("/maintenance") // Redirect to the maintenance page
+      }, 1500) // 1.5 second delay
 
-      router.push("/maintenance")
     } catch (error) {
       showNotification({
         title: "Error submitting request",
