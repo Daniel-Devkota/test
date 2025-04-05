@@ -1,12 +1,99 @@
+"use client"
+
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Badge } from "@/components/ui/badge"
-import { ClipboardList, MessageSquare, PenToolIcon as Tool } from "lucide-react"
+import { ClipboardList, ConstructionIcon, MessageSquare, PenToolIcon as Tool } from "lucide-react"
 import Link from "next/link"
-import { requestData } from "@/data/request-data"
+// import { requestData } from "@/data/request-data"
+
+import { useEffect, useState } from "react"
+import { db } from "@/firebase/clientapp" // Import your Firebase configuration
+import { onAuthStateChanged } from "firebase/auth"
+import { auth } from "@/firebase/clientapp" // Import your Firebase authentication
+import { collection, getDocs, query, where } from "firebase/firestore"
+
+interface CommentObject {
+  author: string;
+  text: string;
+  timestamp: string; // or `Date` / `Timestamp` if you're using Firebase's type
+}
+
+interface MaintenanceRequest {
+  id: string;
+  assignedTo: string;
+  category: string;
+  contactEmail: string;
+  contactName: string;
+  contactPhone: string;
+  description: string;
+  location: string;
+  priority: string;
+  status: string;
+  submittedDate: string;
+  title: string;
+  updatedDate: string;
+  comments?: CommentObject[];
+}
+
+
 
 export default function RequestsPage() {
+
+  const [requestData, setRequests] = useState<MaintenanceRequest[]>([]); // Store maintenance requests
+  const [loading, setLoading] = useState<boolean>(true);
+
+  // Fetch maintenance requests by email
+  const fetchMaintenanceRequests = async (email: string) => {
+    const requestsCollection = collection(db, 'maintenance-requests'); // Collection name
+    const q = query(requestsCollection, where('contactEmail', '==', email)); // Query for documents where 'email' matches the logged-in user's email
+    try {
+      const querySnapshot = await getDocs(q);
+      const maintenanceData: MaintenanceRequest[] = []; // Initialize an empty array to store results
+
+      querySnapshot.forEach((doc) => {
+        const requestData = doc.data() as MaintenanceRequest;
+        requestData.id = doc.id; // Get the document ID
+        maintenanceData.push(requestData); // Add to the array
+      });
+      setRequests(maintenanceData); // Store the results in state
+    } catch (error) {
+      console.error('Error fetching maintenance requests:', error);
+    } finally {
+      setLoading(false); // Stop loading after data is fetched
+    }
+  };
+
+  // Handle user state changes and fetch maintenance requests based on email
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        console.log('Authenticated user:', user.email); // Log the user's email
+        fetchMaintenanceRequests(user.email!); // Fetch maintenance requests based on the user's email
+      } else {
+        setLoading(false); // Stop loading if the user is not logged in
+        console.log('User is not logged in');
+      }
+    });
+
+    return () => unsubscribe(); // Cleanup listener when component unmounts
+  }, []);
+
+  useEffect(() => {
+    // Second effect: Logs whenever the 'requests' state changes
+    console.log('Updated requests:', requestData);
+  }, [requestData]);
+
+  if (loading) {
+    return <div>Loading maintenance requests...</div>;
+  }
+
+  if (requestData.length === 0) {
+    return <div>No maintenance requests found for this user.</div>;
+  }
+
+
   // Group requests by status
   const activeRequests = requestData.filter(
     (req) => req.status === "in-progress" || req.status === "submitted" || req.status === "scheduled",

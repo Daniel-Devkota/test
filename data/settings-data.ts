@@ -37,10 +37,10 @@ export interface UserSettings {
 
 export const userSettings: UserSettings = {
   account: {
-    name: "Alex Johnson",
-    email: "alex.johnson@example.com",
-    phone: "+61 4 1234 5678",
-    unitNumber: "101",
+    name: "",
+    email: "",
+    phone: "",
+    unitNumber: "",
     profileImage: "/placeholder.svg?height=128&width=128",
   },
   notifications: {
