@@ -4,12 +4,12 @@ import { getAuth } from "firebase/auth";
 
 // Your Firebase configuration object (from Firebase Console)
 const firebaseConfig = {
-  apiKey: "AIzaSyBo6E65Z8ep0jFlWST2VfgdzKw_-A9B6ac",
-  authDomain: "strata-management-projec-93ace.firebaseapp.com",
-  projectId: "strata-management-projec-93ace",
-  storageBucket: "strata-management-projec-93ace.firebasestorage.app",
-  messagingSenderId: "18815964419",
-  appId: "1:18815964419:web:09081f3bd46922b02ec536"
+  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY as string,
+  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN as string,
+  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID as string,
+  storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET as string,
+  messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID as string,
+  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID as string,
 };
 
 // Initialize Firebase
