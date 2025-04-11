@@ -46,20 +46,14 @@ export function Footer() {
                   Documents
                 </Link>
               </li>
-              <li>
-                <Link href="/bylaws" className="text-muted-foreground hover:text-foreground">
-                  By-Laws
-                </Link>
+              <li className="text-muted-foreground hover:text-foreground">
+                By-Laws
               </li>
-              <li>
-                <Link href="/insurance" className="text-muted-foreground hover:text-foreground">
-                  Insurance
-                </Link>
+              <li className="text-muted-foreground hover:text-foreground">
+                Insurance
               </li>
-              <li>
-                <Link href="/faqs" className="text-muted-foreground hover:text-foreground">
-                  FAQs
-                </Link>
+              <li className="text-muted-foreground hover:text-foreground">
+                FAQs
               </li>
             </ul>
           </div>

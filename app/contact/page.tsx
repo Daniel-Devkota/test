@@ -55,33 +55,43 @@ export default function ContactPage() {
   })
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    setIsSubmitting(true)
 
     try {
-      // Add the form data to the Firestore collection
-      await addDoc(collection(db, "contact-us-info"), {
+      
+      const formDetails = {
         name: values.name,
         email: values.email,
         subject: values.subject,
         category: values.category,
         message: values.message,
-        createdAt: new Date(), // Optional: Add a timestamp
-      })
+      }
 
+      // Send the form data as a POST request to your API route
+      const response = await fetch('/api/form/form-submission', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',  // Ensure you're sending JSON data
+        },
+        body: JSON.stringify(formDetails),  // Send the form data in the body as JSON
+      });
+      if (!response.ok) {
+        throw new Error('Failed to send message');
+      }
+      // Show success notification if the request is successful
       showNotification({
-        title: "Message sent",
-        description: "Thank you for your message. We will get back to you shortly.",
-      })
-
+        title: 'Message sent',
+        description: 'Thank you for your message. We will get back to you shortly.',
+      });
       form.reset()
     } catch (error) {
+      // Show error notification if something goes wrong
       showNotification({
-        title: "Error sending message",
-        description: "There was a problem sending your message. Please try again.",
-        variant: "destructive",
-      })
+        title: 'Error sending message',
+        description: 'There was a problem sending your message. Please try again.',
+        variant: 'destructive',
+      });
     } finally {
-      setIsSubmitting(false)
+      setIsSubmitting(false);  // Set submitting state to false
     }
   }
 

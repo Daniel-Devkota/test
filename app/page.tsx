@@ -154,11 +154,9 @@ export default function Home() {
                 </p>
               </CardContent>
               <CardFooter>
-                <Link href="/committee/meetings/agm-2025">
-                  <Button variant="outline" size="sm">
-                    View Details
-                  </Button>
-                </Link>
+                <Button variant="outline" size="sm">
+                  View Details
+                </Button>
               </CardFooter>
             </Card>
             <Card>
@@ -176,11 +174,9 @@ export default function Home() {
                 </p>
               </CardContent>
               <CardFooter>
-                <Link href="/maintenance/announcements/pool-maintenance">
-                  <Button variant="outline" size="sm">
-                    View Details
-                  </Button>
-                </Link>
+                <Button variant="outline" size="sm">
+                  View Details
+                </Button>
               </CardFooter>
             </Card>
             <Card>
@@ -198,11 +194,9 @@ export default function Home() {
                 </p>
               </CardContent>
               <CardFooter>
-                <Link href="/bylaws/proposals/pet-ownership">
-                  <Button variant="outline" size="sm">
-                    View Details
-                  </Button>
-                </Link>
+                <Button variant="outline" size="sm">
+                  View Details
+                </Button>
               </CardFooter>
             </Card>
           </div>
@@ -220,7 +214,7 @@ export default function Home() {
               </p>
             </div>
             <div className="flex flex-col gap-2 min-[400px]:flex-row">
-              <Link href="/owners-portal/register">
+              <Link href="/owners-portal">
                 <Button size="lg">Register Now</Button>
               </Link>
               <Link href="/contact">

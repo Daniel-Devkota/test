@@ -90,7 +90,7 @@ export default function RequestsPage() {
   }
 
   if (requestData.length === 0) {
-    return <div>No maintenance requests found for this user.</div>;
+    return <div>No maintenance requests found for this user. Create one by clicking on the maintenance tab.</div>;
   }
 
 
