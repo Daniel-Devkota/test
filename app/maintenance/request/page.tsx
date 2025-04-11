@@ -77,9 +77,8 @@ export default function MaintenanceRequestPage() {
 
       // Assign a person based on the category
       const assignedTo = categoryToPersonnel[values.category] || "Unassigned"
-
-      // Add the form data to the Firestore collection
-      await addDoc(collection(db, "maintenance-requests"), {
+    
+      const postRequestData = {
         title: values.title,
         location: values.location,
         category: values.category,
@@ -90,9 +89,19 @@ export default function MaintenanceRequestPage() {
         contactPhone: values.contactPhone || null, // Optional field
         status: "submitted", // Default status for new requests
         submittedDate: new Date().toISOString(), // Add a timestamp
-        assignedTo: assignedTo, // Assign based on category
-      })
-
+        assignedTo: assignedTo // Assign based on category
+      }
+      
+      const response = await fetch('/api/maintenance/form-submission', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',  // Ensure you're sending JSON data
+        },
+        body: JSON.stringify(postRequestData),  // Send the form data in the body as JSON
+      });
+      if (!response.ok) {
+        throw new Error('Failed to send message');
+      }
       showNotification({
         title: "Maintenance request submitted",
         description: "Your request has been received and will be processed shortly.",

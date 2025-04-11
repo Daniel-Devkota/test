@@ -12,8 +12,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Textarea } from "@/components/ui/textarea"
 import { useNotification } from "@/components/notification"
 import { Building, Mail, MapPin, Phone } from "lucide-react"
-import { addDoc, collection } from "firebase/firestore"
-import { db } from "@/firebase/clientapp" // Import your Firestore instance
 
 // Define the User interface based on your schema (just the 'test' field)
 interface User {
@@ -67,7 +65,7 @@ export default function ContactPage() {
       }
 
       // Send the form data as a POST request to your API route
-      const response = await fetch('/api/form/form-submission', {
+      const response = await fetch('/api/contact/form-submission', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',  // Ensure you're sending JSON data
